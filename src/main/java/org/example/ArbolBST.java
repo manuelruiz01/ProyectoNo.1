@@ -12,7 +12,7 @@ public class ArbolBST<T> {
     }
 
     public boolean insertar(T valor) {
-        if (this.raiz == null) {
+        if (this.raiz == null) { //primera insersión del arbol (raiz)
             this.raiz = new Nodo<T>(valor);
             return true;
         } else {
@@ -25,15 +25,15 @@ public class ArbolBST<T> {
             nodo = new Nodo<T>(valor);
             return nodo;
         } else if (this.comparador.compare(valor, nodo.dato) == 0) {
-            return null;
-        } else if (this.comparador.compare(valor, nodo.dato) < 0) {
+            return null; //repetido
+        } else if (this.comparador.compare(valor, nodo.dato) < 0) { //menor a padre (izquierda)
             Nodo<T> aux = this.insertar(valor, nodo.izquierdo);
-            if (aux != null) {
+            if (aux != null) { //la insersión es válida
                 nodo.izquierdo = aux;
             }
 
             return nodo;
-        } else {
+        } else { //derecha (mayor a padre)
             Nodo<T> aux = this.insertar(valor, nodo.derecho);
             if (aux != null) {
                 nodo.derecho = aux;
