@@ -1,6 +1,9 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Stack;
 
 public class ArbolBST<T> {
     private Nodo<T> raiz;
@@ -43,18 +46,37 @@ public class ArbolBST<T> {
         }
     }
 
+    public List<T> inorder(){
+        Nodo<T> aux = this.raiz;
+        Stack<Nodo<T>> stack = new Stack<>();
+        List<T> resultado = new ArrayList<>();
+        while (!stack.isEmpty() || aux != null) {
+            while (aux != null){
+                stack.push(aux);
+                aux = aux.izquierdo;
+            }
+            aux = stack.pop();
+            resultado.add(aux.dato);
+
+            aux = aux.derecho;
+        }
+
+        return resultado;
+
+    }
+
     public Boolean borrar (T valor){
         return true;
     }
 
     private static class Nodo<T> {
         public T dato;
-        private Nodo<T> izquierdo;
-        private Nodo<T> derecho;
+        public Nodo<T> izquierdo;
+        public Nodo<T> derecho;
 
         public Nodo(T dato) {
-            super();
             this.dato = dato;
         }
+
     }
 }

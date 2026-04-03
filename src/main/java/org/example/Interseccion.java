@@ -15,8 +15,11 @@ public class Interseccion {
     private LocalDateTime actualizacionReporte;
     private boolean activa;
     private int sensores;
+    private String nombre;
 
-    public Interseccion(int id, String distrito, String zona, String avenida, int nivelRiesgo, int nivelCongestion,int sensores){
+
+
+    public Interseccion(int id, String distrito, String zona, String avenida, int nivelRiesgo, int nivelCongestion, int sensores){
         this.id = id;
         this.distrito = distrito;
         this.zona = zona;
@@ -26,7 +29,22 @@ public class Interseccion {
         this.nivelCongestion = nivelCongestion;
         this.nivelRiesgo = nivelRiesgo;
         this.actualizacionReporte = LocalDateTime.now();
+        this.nombre = "Interseccion" + Integer.toString(id);
 
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDistrito() {
+        return distrito;
+    }
+    public String getZona() {
+        return zona;
+    }
+    public String getAvenida() {
+        return avenida;
     }
 
     public int getId() {return id;}
