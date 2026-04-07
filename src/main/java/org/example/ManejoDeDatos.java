@@ -6,11 +6,45 @@ import java.util.*;
 
 public class ManejoDeDatos {
     public List<Interseccion> intersecciones = new ArrayList<>();
+
+    //BST
     public ArbolBST<Interseccion> arbolBSTPorId;
+    public ArbolBST<Interseccion> arbolBSTPorCongestion;
+    public ArbolBST<Interseccion> arbolBSTPorRiesgo;
+    public ArbolBST<Interseccion> arbolBSTPorTiempoReporte;
+
+
+    //AVL
     public ArbolAVL<Interseccion> arbolAVLPorId;
+
+    //Nario
     public ArbolNario<String> arbolNarioCiudad;
-    public ColaDePrioridad<Evento> cola = new ColaDePrioridad<>((a, b) -> b.getPrioridad() - a.getPrioridad());
+
+    //Cola de prioridad
+    private Comparator<Evento> comparador = (a,b) ->Integer.compare(b.getPrioridad(), a.getPrioridad());
+    public ColaDePrioridad<Evento> cola = new ColaDePrioridad<>(comparador);
+
+    //Criterios de insercion
     public Comparator<Interseccion> ordenPorId = (a,b) -> Integer.compare(a.getId(),b.getId());
+
+    public Comparator<Interseccion> ordenPorCongestion = (a,b) -> {
+        int orden = Integer.compare(a.getNivelCongestion(),b.getNivelCongestion());
+        if(orden == 0) return Integer.compare(a.getId(),b.getId());;
+        return orden;
+    };
+
+    public Comparator<Interseccion> ordenPorRiesgo = (a,b) -> {
+        int orden = Integer.compare(a.getNivelRiesgo(),b.getNivelRiesgo());
+        if(orden == 0) return Integer.compare(a.getId(),b.getId());;
+        return orden;
+    };
+
+    public Comparator<Interseccion> ordenPorTiempoReporte = (a,b) -> {
+        int orden = Long.compare(a.getActualizacionReporte(),b.getActualizacionReporte());
+        if(orden == 0) return Integer.compare(a.getId(),b.getId());;
+        return orden;
+    };
+
 
 
     public ManejoDeDatos(){}
@@ -49,6 +83,29 @@ public class ManejoDeDatos {
         }
     }
 
+    public void cargarArbolBSTporCongestion(){
+        arbolBSTPorCongestion= new ArbolBST(ordenPorCongestion);
+        for (Interseccion interseccion: intersecciones) {
+            arbolBSTPorCongestion.insertar(interseccion);
+        }
+    }
+
+    public void cargarArbolBSTporRiesgo(){
+        arbolBSTPorCongestion= new ArbolBST(ordenPorRiesgo);
+        for (Interseccion interseccion: intersecciones) {
+            arbolBSTPorRiesgo.insertar(interseccion);
+        }
+    }
+
+    public void cargarArbolBSTporTiempoReporte(){
+        arbolBSTPorTiempoReporte= new ArbolBST(ordenPorTiempoReporte);
+        for (Interseccion interseccion: intersecciones) {
+            arbolBSTPorTiempoReporte.insertar(interseccion);
+        }
+    }
+
+
+
     //Mostrar Recorridos
     private void recorridosBST(ArbolBST<Interseccion> arbolBST){
         System.out.println("Recorrido Inorder ");
@@ -64,20 +121,45 @@ public class ManejoDeDatos {
             System.out.print(interseccion.getId() +  " ");
         }
         System.out.println();
+        System.out.println("Recorrido LevelOrder ");
+        for (List<Interseccion>nivel: arbolBST.levelOrder()) {
+            for (Interseccion interseccion: nivel) {
+                System.out.print(interseccion.getId() +  " ");
+            }
+        }
+
     }
 
     public void recorridosBST(){
         System.out.println("Recorridos ArbolBST indexado por Ids ");
         recorridosBST(arbolBSTPorId);
 
+        System.out.println("Recorridos ArbolBST indexado por Nivel de congestion ");
+        recorridosBST(arbolBSTPorCongestion);
+
+        System.out.println("Recorridos ArbolBST indexado por Nivel de Riesgo");
+        recorridosBST(arbolBSTPorRiesgo);
+
+        System.out.println("Recorridos ArbolBST indexado por Tiempo de reporte");
+        recorridosBST(arbolBSTPorTiempoReporte);
+
     }
 
     //Buscar
     public void buscarInterseccionesPorIdBST(int valor){
-        if(arbolBSTPorId.encontrado(new Interseccion(valor, "", "", "", 0, 0, 0,0))){
+        if(arbolBSTPorId.encontrado(new Interseccion(valor, "", "", "", 0, 0, 0,0)) != null){
             System.out.println("Interseccion " + valor + " encontrada");
         }else{
             System.out.println("Interseccion " + valor + " no encontrada");
+        }
+
+    }
+
+    public void buscarInterseccionesPorCongestionBST(int congestion, int id){
+        if(arbolBSTPorCongestion.encontrado(new Interseccion(id, "", "", "", 0, congestion, 0,0)) != null){
+            System.out.println("Interseccion " + id + " encontrada");
+        }else{
+            System.out.println("Interseccion " + id + " no encontrada");
         }
 
     }
@@ -94,7 +176,6 @@ public class ManejoDeDatos {
 
 
     //AVL
-
     public void cargarArbolAVLporId(){
         arbolAVLPorId = new ArbolAVL(ordenPorId);
         for (Interseccion interseccion: intersecciones) {
@@ -175,29 +256,82 @@ public class ManejoDeDatos {
         StringBuilder  estadisticasArbolNario = new StringBuilder();
         estadisticasArbolNario.append(" Estadisticas arbol Nario: Profundidad maxima: " + arbolNarioCiudad.profunidadMaxima() + " Intersecciones por distrito: " + arbolNarioCiudad.HojasPorDistrito());
         estadisticas.add(estadisticasArbolNario.toString());
-
-
-
         return estadisticas;
 
     }
 
     //Cola
-    public void cargarEventosAleatorios(int cantidad){
-        String[] eventos = {"Accidente grave", "Ambulancia en ruta", "Congestión alta", "Semáforo dañado", "Colision", "Lluvia fuerte", "Inundacion"};
-        Random eventosRandom = new Random();
+    public Evento generarEvento(int id){
+        String[] tipos = {"accidente", "trafico", "lluvia", "semaforo descompuesto", "reparaciones", "manifestacion"};
+        Random random = new Random();
+        int prioridad = random.nextInt(1,101);
+        String tipo = tipos[random.nextInt(tipos.length)];
+        int interseccion = random.nextInt(1,intersecciones.size());
+        return new Evento(id, prioridad, tipo, interseccion);
+    }
 
-        for(int i = 0; i < cantidad; i++){
-            int tipo =  eventosRandom.nextInt(0,eventos.length);
-            int prioridad = eventosRandom.nextInt(1, cantidad);
-            Evento evento = new Evento(String.valueOf(i),eventos[tipo],prioridad);
-            cola.insertar(evento);
+    public void cargarCola(int cantidadEventos){
+        for(int i = 0; i < cantidadEventos; i++){
+            cola.insertar(generarEvento(i));
         }
     }
 
-    public void estadisticasCola(){
-        System.out.println("Total eventos en cola: " + cola.size());
-        System.out.println("Evento con mayor prioridad: " + cola.maxPrioridad());
+    public void procesarEvento(){
+        Evento evento = cola.extraer();
+        Interseccion interseccion = arbolBSTPorId.encontrado(new Interseccion(evento.getIdInterseccion(), "", "", "", 0, 0, 0,0));
+
+        if(interseccion == null){return;}
+
+        arbolBSTPorCongestion.eliminado(interseccion);
+
+        switch (evento.getTipo()){
+            case "accidente":
+                interseccion.setNivelCongestion(interseccion.getNivelCongestion() + 30);
+                interseccion.setNivelRiesgo(interseccion.getNivelRiesgo() + 25);
+                break;
+
+            case "trafico":
+                interseccion.setNivelCongestion(interseccion.getNivelCongestion() + 15);
+                interseccion.setNivelRiesgo(interseccion.getNivelRiesgo() + 1);
+                break;
+            case "lluvia":
+                interseccion.setNivelCongestion(interseccion.getNivelCongestion() + 15);
+                interseccion.setNivelRiesgo(interseccion.getNivelRiesgo() + 25);
+                break;
+
+            case "semaforo descompuesto":
+                interseccion.setNivelCongestion(interseccion.getNivelCongestion() + 10);
+                interseccion.setNivelRiesgo(interseccion.getNivelRiesgo() + 25);
+                break;
+
+            case "reparaciones":
+                interseccion.setNivelCongestion(interseccion.getNivelCongestion() + 10);
+                interseccion.setNivelRiesgo(interseccion.getNivelRiesgo() + 20);
+                break;
+
+            case "manifestacion":
+                interseccion.setNivelCongestion(interseccion.getNivelCongestion() + 25);
+                interseccion.setNivelRiesgo(interseccion.getNivelRiesgo() + 5);
+                break;
+
+        }
+        interseccion.actualizarReporte();
+        arbolBSTPorCongestion.insertar(interseccion);
+
     }
+
+    public void actualizarPrioridad(){
+        Evento evento = cola.peek();
+        Evento eventoNuevo = new Evento(evento.getId(),evento.getPrioridad()-10, evento.getTipo(), evento.getId());
+        cola.actualizarPrioridad(evento, eventoNuevo);
+    }
+
+    //Pasa de ser un Max-Heap a un Min-Heap, de manera que ahora los eventos de menor prioridad se procesan primero
+    public void InvertirPrioridad(){
+        Comparator<Evento> comparadorNuevo = (a,b) ->Integer.compare(a.getPrioridad(),b.getPrioridad());
+        cola.cambiarComparador(comparadorNuevo);
+    }
+
+
 
 }

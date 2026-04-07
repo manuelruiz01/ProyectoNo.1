@@ -104,6 +104,13 @@ public class ArbolNario<T> {
 
     }
 
+    public float factorRamificacionPromedio(){
+        int nodosInternos = this.CantidadNodosInternos();
+        float factor = (this.elementos-1)/nodosInternos;
+        return factor;
+
+    }
+
 
     private static class NaryNode<T> {
         public T value;

@@ -1,9 +1,6 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class ArbolBST<T> {
     private Nodo<T> raiz;
@@ -22,7 +19,7 @@ public class ArbolBST<T> {
             this.raiz = new Nodo<T>(valor);
             return true;
         } else {
-            return this.insertar(valor, this.raiz) != null;
+            return insertar(valor, this.raiz) != null;
         }
     }
 
@@ -32,7 +29,11 @@ public class ArbolBST<T> {
             return nodo;
         } else if (this.comparador.compare(valor, nodo.dato) == 0) {
             comparacionesInsercion++;
-            return null; //repetido
+            Nodo<T> aux = this.insertar(valor, nodo.izquierdo);
+            if (aux != null) {
+                nodo.izquierdo = aux;
+            }
+            return nodo; //si es repetido lo inserta a la izquierda
         } else if (this.comparador.compare(valor, nodo.dato) < 0) { //menor a padre (izquierda)
             Nodo<T> aux = this.insertar(valor, nodo.izquierdo);
             if (aux != null) { //la insersión es válida
@@ -60,14 +61,14 @@ public class ArbolBST<T> {
         return inorder(this.raiz, result);
     }
 
-    private List<T> inorder(Nodo<T> node, List<T> result) {
-        if (node == null) {
+    private List<T> inorder(Nodo<T> nodo, List<T> result) {
+        if (nodo == null) {
             return result;
         }
 
-        inorder(node.izquierdo, result);
-        result.add(node.dato);
-        inorder(node.derecho, result);
+        inorder(nodo.izquierdo, result);
+        result.add(nodo.dato);
+        inorder(nodo.derecho, result);
         return result;
     }
 
@@ -82,14 +83,14 @@ public class ArbolBST<T> {
         return preorder(this.raiz, result);
     }
 
-    private List<T> preorder(Nodo<T> node, List<T> result) {
-        if (node == null) {
+    private List<T> preorder(Nodo<T> nodo, List<T> result) {
+        if (nodo == null) {
             return result;
         }
 
-        result.add(node.dato);
-        inorder(node.izquierdo, result);
-        inorder(node.derecho, result);
+        result.add(nodo.dato);
+        inorder(nodo.izquierdo, result);
+        inorder(nodo.derecho, result);
         return result;
     }
 
@@ -103,14 +104,37 @@ public class ArbolBST<T> {
         return postorder(this.raiz, result);
     }
 
-    private List<T> postorder(Nodo<T> node, List<T> result) {
-        if (node == null) {
+    private List<T> postorder(Nodo<T> nodo, List<T> result) {
+        if (nodo == null) {
             return result;
         }
 
-        inorder(node.izquierdo, result);
-        inorder(node.derecho, result);
-        result.add(node.dato);
+        inorder(nodo.izquierdo, result);
+        inorder(nodo.derecho, result);
+        result.add(nodo.dato);
+        return result;
+    }
+
+    //Recorrido level order
+    public List<List<T>> levelOrder(){
+        if(this.raiz == null){
+            return null;
+        }
+        List<List<T>> result = new ArrayList<>();
+        Queue<Nodo<T>> queue = new LinkedList<>();
+        queue.offer(this.raiz);
+        while(!queue.isEmpty()){
+            List<T> nivel = new ArrayList<>();
+
+            int size = queue.size();
+            for(int i = 0; i < size; i++){
+                Nodo<T> nodo = queue.poll();
+                nivel.add(nodo.dato);
+                if(nodo.izquierdo != null) queue.offer(nodo.izquierdo);
+                if(nodo.derecho != null) queue.offer(nodo.derecho);
+            }
+            result.add(nivel);
+        }
         return result;
     }
 
@@ -146,15 +170,17 @@ public class ArbolBST<T> {
         return buscar(nodo.izquierdo, valor);
     }
 
-    public boolean encontrado(T valor){
+    public T encontrado(T valor){
         if(buscar(this.raiz, valor) != null){
-            return true;
+            return buscar(this.raiz, valor).dato;
         }else{
-            return false;
+            return null;
 
         }
 
     }
+
+
 
     //Eliminar
 

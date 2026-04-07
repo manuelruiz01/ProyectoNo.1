@@ -14,10 +14,15 @@ public class Main {
         manejoDeDatos.cargarArbolNario();
         manejoDeDatos.cargarArbolAVLporId();
 
+        manejoDeDatos.cargarArbolBSTporCongestion();
+
         manejoDeDatos.recorridosBST();
         manejoDeDatos.recorridoArbolNario();
 
-        manejoDeDatos.buscarInterseccionesPorIdBST(988);
+        manejoDeDatos.buscarInterseccionesPorIdBST(1);
+
+        manejoDeDatos.buscarInterseccionesPorCongestionBST(19,137);
+
 
 
     }

@@ -12,7 +12,7 @@ public class Interseccion {
 
     private int nivelCongestion; //1-100
     private int nivelRiesgo; //1-100
-    private LocalDateTime actualizacionReporte;
+    private long  actualizacionReporte;
     private boolean activa;
     private int sensores;
     private String nombre;
@@ -29,7 +29,7 @@ public class Interseccion {
             this.activa = false;
         this.nivelCongestion = nivelCongestion;
         this.nivelRiesgo = nivelRiesgo;
-        this.actualizacionReporte = LocalDateTime.now();
+        this.actualizacionReporte = System.currentTimeMillis();
         this.nombre = "Interseccion" + Integer.toString(id);
 
     }
@@ -37,9 +37,7 @@ public class Interseccion {
     public String getNombre() {
         return nombre;
     }
-    public boolean isActiva() {
-        return activa;
-    }
+    public boolean isActiva() {return activa;}
 
     public String getDistrito() {
         return distrito;
@@ -54,16 +52,22 @@ public class Interseccion {
     public int getId() {return id;}
     public int getNivelCongestion() {return nivelCongestion;}
     public int getNivelRiesgo() {return nivelRiesgo;}
-    public LocalDateTime getActualizacionReporte() {return actualizacionReporte;}
+    public long getActualizacionReporte() {return actualizacionReporte;}
 
     public void setNivelCongestion(int nivelCongestion) {
-        this.nivelCongestion = nivelCongestion;
-        this.actualizacionReporte = LocalDateTime.now();
+        this.nivelCongestion =  Math.min(100,this.nivelCongestion + nivelCongestion);
+    }
+
+    public void setNivelRiesgo(int nivelRiesgo) {
+        this.nivelRiesgo = Math.min(100,this.nivelRiesgo + nivelRiesgo);
     }
 
     public void setActiva(boolean activa){
         this.activa = activa;
-        this.actualizacionReporte = LocalDateTime.now();
+    }
+
+    public void actualizarReporte() {
+        this.actualizacionReporte = System.currentTimeMillis();
     }
 
     //Este objeto es lo que va dentro del BST y el AVL
